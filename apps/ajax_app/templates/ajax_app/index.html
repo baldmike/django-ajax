@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name='viewport' content="width=device-width initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'ajax_app/css/styles.css' %}" media="screen" title="Django Ajax" charset="UTF-8">
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"                     integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <!-- <script src="{% static 'ajax_app/ajax_app.js' %}"></script> -->
+</head>
+<body>
+
+    <div class="container">
+        <h1>Demo 1 - JSON VS HTML</h2>
+        <button id='button_json' class='btn btn-primary'>HttpResponse from all.json</button>
+        <button id='button_html' class='btn btn-primary'>HttpResponse from all.html</button>
+        <div id='placeholder1' style='margin-top:35px; border:1px solid silver; width:750px; padding:10px;'>
+            Placeholder for the Ajax Response
+        </div>
+    
+
+        <h1>Demo 2 - Ajax Form</h1>
+        <form action='/ajax_app/find' method='post' class='ajax_form'>
+        Find all users whose first name starts with
+        {% csrf_token %}
+        <input type='text' name='first_name_starts_with' id='ajax_first_name' />
+        </form>
+        <div id='placeholder2' style='margin-top:35px; border:1px solid silver; width:750px; padding:10px;'>
+            Placeholder for the Ajax Form
+        </div>
+
+        <h1>Demo 3 - Ajax Form II</h1>
+        <h2>Create a new user</h2>
+        <form action='/create' method='post' class='ajax_form' id='create_user_ajax_form'>
+            {% csrf_token %}
+            First Name: <input type='text' name='first_name'/>
+            Last Name: <input type='text' name='last_name'/>
+            Email: <input type='text' name='email_address'/>
+            Age: <input type='text' name='age'/>
+            <input type='submit' value='Submit' />
+        </form>
+        <div id='placeholder3' style='margin-top:35px; border:1px solid silver; width:750px; padding:10px;'>
+            Placeholder for the Ajax Form part II
+        </div>
+    </div>
+
+    <script>
+        $('#button_json').click(function(){
+            console.log("ALL JSON BUTTON PUSHED");
+            $.ajax({
+                url: '/all.json', /* Where should this go? */
+                success: function(serverResponse) {  /* What code should we run when the server responds? */
+                $('#placeholder1').html(JSON.stringify(serverResponse))
+                }
+            });
+        });
+
+        $('#button_html').click(function(){
+            console.log("ALL HTML BUTTON PUSHED");
+            $.ajax({
+                url: '/all.html', /* Where should this go? */
+                success: function(serverResponse) {  /* What code should we run when the server responds? */
+                console.log("Received this from server:", serverResponse)
+                $('#placeholder1').html(serverResponse)
+                }
+            });
+        });
+            
+        $('.ajax_form').submit(function(e){
+            e.preventDefault()
+        })
+        $('#ajax_first_name').keyup(function(){
+            console.log('Sending Ajax request to /ajax_app/find')
+            console.log('Submitting the following data', $(this).parent().serialize())
+            $.ajax({
+                url: '/find', /* Where should this go? */
+                method: 'post', /* Which HTTP verb? */
+                data: $(this).parent().serialize(), /* Any data to send along? */
+                success: function(serverResponse) { /* What code should we run when the server responds? */
+                $('#placeholder2').html(serverResponse)
+                }
+            })
+        });
+
+        $('#create_user_ajax_form').submit(function(e){
+            e.preventDefault()
+            console.log('Sending Ajax request to', $(this).attr('action'))
+            console.log('Submitting the following data', $(this).serialize())
+            $.ajax({
+                url: $(this).attr('action'), /* Where should this go? */
+                method: 'post', /* Which HTTP verb? */
+                data: $(this).serialize(), /* Any data to send along? */
+                success: function(serverResponse) { /* What code should we run when the server responds? */
+                $('#placeholder3').html(serverResponse)
+                }
+            })
+        });
+
+    </script>
+
+</body>
+</html>
+
+
